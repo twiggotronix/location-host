@@ -1,33 +1,64 @@
 import select from "@inquirer/select";
-import { createReadStream, writeFile } from "fs";
+import { access, constants, createReadStream, writeFile } from "fs";
 import { EOL } from "node:os";
 import { networkInterfaces, type NetworkInterfaceInfo } from "os";
-import path from "path";
+import * as path from "path";
 import { createInterface } from "readline/promises";
+import { createLogger, transports } from "winston";
 
 const flag = "[location-host]";
-const filename = path.join(
-  "C:",
-  "Windows",
-  "System32",
-  "drivers",
-  "etc",
-  "hosts"
-);
+const hostFilePath =
+  process.platform === "win32"
+    ? path.join("C:", "Windows", "System32", "drivers", "etc", "hosts")
+    : path.join("etc", "hosts");
 const nets = networkInterfaces();
 
 type Ips = { [intf: string]: string };
-const ips: Ips = Object.keys(nets)
-  .filter((intf) => !/^(vEthernet|Loopback).*/.test(intf))
-  .reduce((carry, intf: string) => {
-    const localIps = (nets[intf] as NetworkInterfaceInfo[])
-      .filter((info) => info.family === "IPv4" && !info.internal)
-      .map((info) => info.address);
 
-    return { ...carry, [intf]: localIps[0] };
-  }, {});
+const logger = createLogger({
+  transports: [
+    new transports.Console(),
+    new transports.File({ filename: "location-host.log.json" }),
+  ],
+});
 
-const gatherInfo = async (ips: Ips) => {
+const getIpData = (): Ips => {
+  return Object.keys(nets)
+    .filter((intf) => !/^(vEthernet|Loopback).*/.test(intf))
+    .reduce((carry, intf: string) => {
+      const localIps = (nets[intf] as NetworkInterfaceInfo[])
+        .filter((info) => info.family === "IPv4" && !info.internal)
+        .map((info) => info.address);
+
+      return { ...carry, [intf]: localIps[0] };
+    }, {});
+};
+const doChekcs = async (): Promise<boolean> => {
+  const readCheck = new Promise<boolean>((resolve) => {
+    access(hostFilePath, constants.R_OK, (err) => {
+      if (err) {
+        logger.error(`Can't read ${hostFilePath}`);
+        throw new Error(`Can't read ${hostFilePath}`);
+      }
+      logger.info(`Can read ${hostFilePath}`);
+      resolve(true);
+    });
+  });
+  const writeCheck = new Promise<boolean>((resolve) => {
+    access(hostFilePath, constants.W_OK, (err) => {
+      if (err) {
+        logger.error(`Can't write ${hostFilePath}`);
+        throw new Error(`Can't write to ${hostFilePath}`);
+      }
+      logger.info(`Can write ${hostFilePath}`);
+      resolve(true);
+    });
+  });
+
+  const [canRead, canWrite] = await Promise.all([readCheck, writeCheck]);
+  return canRead && canWrite;
+};
+const gatherInfo = async (ips: Ips): Promise<string> => {
   const choices = Object.keys(ips).map((intf) => ({
     value: ips[intf],
     name: `Interface ${intf} (${ips[intf]})`,
@@ -39,7 +70,7 @@ const gatherInfo = async (ips: Ips) => {
 };
 
 const setNewIp = async (newIp: string) => {
-  const fileStream = createReadStream(filename);
+  const fileStream = createReadStream(hostFilePath);
 
   const rl = createInterface({
     input: fileStream,
@@ -61,15 +92,20 @@ const setNewIp = async (newIp: string) => {
     fileContents += EOL;
   }
 
-  writeFile(filename, fileContents, (err) => {
+  writeFile(hostFilePath, fileContents, (err) => {
     if (err) {
-      console.error(err);
+      logger.error(err);
     } else {
-      // file written successfully
+      logger.info("✅ host file written");
     }
   });
 };
-gatherInfo(ips).then(async (selectedIp) => {
-  console.log(`Selected IP: ${selectedIp}`);
+
+const main = async () => {
+  const ips = getIpData();
+  await doChekcs();
+  const selectedIp = await gatherInfo(ips);
+  logger.info(`Selected IP: ${selectedIp}`);
   await setNewIp(selectedIp);
-});
+};
+main();
