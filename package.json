@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node index.ts",
+    "start": "ts-node src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npm run build:ts && npm run build:sea && npm run build:package-node && npm run build:package && npm run build:clean",
-    "build:ts": "npx tsc",
+    "build:ts": "npx webpack",
     "build:sea": "node --experimental-sea-config build/sea-config.json",
     "build:package-node": "node -e \"require('fs').copyFileSync(process.execPath, 'dist/location-host.exe')\"",
     "build:package": "npx postject dist/location-host.exe NODE_SEA_BLOB dist/sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2",
@@ -16,11 +16,14 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@inquirer/select": "^2.3.5",
     "@types/inquirer": "^9.0.7",
     "@types/node": "^20.14.2",
-    "@inquirer/select": "^2.3.5",
+    "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "webpack": "^5.92.1",
+    "webpack-cli": "^5.1.4"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
