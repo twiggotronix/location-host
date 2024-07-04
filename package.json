@@ -11,7 +11,9 @@
     "build:clean": "rm dist/index.js dist/sea-prep.blob",
     "lint": "npx eslint ./src --ext .ts",
     "format": "npx prettier --write ./src",
-    "format:check": "npx prettier --check ./src"
+    "format:check": "npx prettier --check ./src",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
+    "changelog:release": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md && git commit -m 'chore(release): update changelog [skip ci]'"
   },
   "author": "",
   "license": "ISC",
@@ -23,6 +25,7 @@
     "@typescript-eslint/eslint-plugin": "^7.15.0",
     "@typescript-eslint/parser": "^7.15.0",
     "clean-webpack-plugin": "^4.0.0",
+    "conventional-changelog-cli": "^5.0.0",
     "copy-webpack-plugin": "^12.0.2",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
