@@ -1,7 +1,5 @@
-import { networkInterfaces, type NetworkInterfaceInfo } from "os";
+import { type NetworkInterfaceInfo } from "os";
 import type { Ips } from "./types";
-
-const nets = networkInterfaces();
 
 export const getIpData = (
   networks: NodeJS.Dict<NetworkInterfaceInfo[]>

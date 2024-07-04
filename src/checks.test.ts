@@ -31,9 +31,7 @@ describe("doChekcs", () => {
       const checkFileIsReadableSpy = jest
         .spyOn(utils, "checkFileIsReadable")
         .mockReturnValue({ success: false });
-      const checkFileIsWritableSpy = jest
-        .spyOn(utils, "checkFileIsWritable")
-        .mockReturnValue(true);
+      jest.spyOn(utils, "checkFileIsWritable").mockReturnValue(true);
 
       const result = doChecks({ wifi: "192.168.0.5" }, fakeFilePath);
 
