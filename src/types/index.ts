@@ -1,2 +1,2 @@
-export type { Ips } from "./Ips.type";
-export type { GatherInfoOptions } from "./gather-info-options";
+export type { Ips } from './Ips.type';
+export type { GatherInfoOptions } from './gather-info-options';

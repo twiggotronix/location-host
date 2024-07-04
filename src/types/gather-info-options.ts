@@ -1,5 +1,5 @@
 export type GatherInfoOptions = {
-  wifi?: boolean;
-  ethernet?: boolean;
-  headless?: boolean;
+    wifi?: boolean;
+    ethernet?: boolean;
+    headless?: boolean;
 };

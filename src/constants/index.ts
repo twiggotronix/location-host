@@ -1,1 +1,1 @@
-export { flag } from "./flag";
+export { flag } from './flag';

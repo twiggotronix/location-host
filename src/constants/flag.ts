@@ -1,1 +1,1 @@
-export const flag = "[location-host]";
+export const flag = '[location-host]';
