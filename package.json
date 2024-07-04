@@ -8,7 +8,8 @@
     "test": "npx jest",
     "build": "npx webpack",
     "build:ts": "npx webpack",
-    "build:clean": "rm dist/index.js dist/sea-prep.blob"
+    "build:clean": "rm dist/index.js dist/sea-prep.blob",
+    "lint": " eslint ./src --ext .ts"
   },
   "author": "",
   "license": "ISC",
