@@ -1,7 +1,7 @@
 module.exports = {
     root: true,
     parser: '@typescript-eslint/parser',
-    plugins: ['@typescript-eslint'],
+    plugins: ['@typescript-eslint', 'prettier'],
     extends: [
         'eslint:recommended', // Basic ESLint rules
         'plugin:import/errors', // ESLint plugin for import/export syntax
@@ -21,6 +21,7 @@ module.exports = {
                 extensions: ['.js', '.ts'],
             },
         },
+        'prettier.configPath': './.prettierrc',
     },
     globals: {
         process: 'readonly',
