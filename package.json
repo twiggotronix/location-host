@@ -10,7 +10,8 @@
     "build:ts": "npx webpack",
     "build:clean": "rm dist/index.js dist/sea-prep.blob",
     "lint": "npx eslint ./src --ext .ts",
-    "format": "npx prettier --write ./src"
+    "format": "npx prettier --write ./src",
+    "format:check": "npx prettier --check ./src"
   },
   "author": "",
   "license": "ISC",
