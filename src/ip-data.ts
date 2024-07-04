@@ -3,11 +3,13 @@ import type { Ips } from "./types";
 
 const nets = networkInterfaces();
 
-export const getIpData = (): Ips => {
-  return Object.keys(nets)
+export const getIpData = (
+  networks: NodeJS.Dict<NetworkInterfaceInfo[]>
+): Ips => {
+  return Object.keys(networks)
     .filter((intf) => !/^(vEthernet|Loopback).*/.test(intf))
     .reduce((carry, intf: string) => {
-      const localIps = (nets[intf] as NetworkInterfaceInfo[])
+      const localIps = (networks[intf] as NetworkInterfaceInfo[])
         .filter((info) => info.family === "IPv4" && !info.internal)
         .map((info) => info.address);
 

@@ -31,10 +31,10 @@ export const gatherInfo = async (
     getLogger().info(`⚠️ No pre-selected value`);
   }
   if (options.headless) {
-    throw new Error("cannot select network in headless mode");
+    throw new Error("Cannot select network in headless mode");
   }
   return select({
-    message: "Pick an interface",
+    message: "Pick a network interface",
     choices,
   });
 };
