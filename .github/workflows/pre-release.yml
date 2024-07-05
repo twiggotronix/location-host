@@ -85,6 +85,9 @@ jobs:
         steps:
             - name: Checkout code
               uses: actions/checkout@v2
+              with:
+                  ref: main # Replace with your branch name
+                  fetch-depth: 0 # Fetch all history for the branch
 
             - name: Download built artifact
               uses: actions/download-artifact@v2
@@ -105,7 +108,7 @@ jobs:
                   echo "$changelog_content" >> $GITHUB_ENV
                   echo "EOF" >> $GITHUB_ENV
 
-            - name: Read changelog content
+            - name: Create Release
               run: |
                   app_version=$(jq -r '.version' package.json)
                   echo "app_version<<EOF" >> $GITHUB_ENV
