@@ -1,9 +1,9 @@
-# 0.0.0 (2024-07-05)
+# 0.1.0 (2024-07-05)
 
 
 ### Bug Fixes
 
-* tag name ([cb2c1af](https://github.com/twiggotronix/location-host/commit/cb2c1af3f12015a83fe22fb1e3d9555a9611e896))
+* **release:** version update ([43c65b7](https://github.com/twiggotronix/location-host/commit/43c65b7fe20afd825f62ec120c6cd15480546f05))
 
 
 
