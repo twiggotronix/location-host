@@ -75,7 +75,7 @@ jobs:
                   name: location-host.exe
                   path: ./dist/location-host.exe # Replace with the path to your binary files
     release:
-        needs: build
+        needs: [build, pre-release]
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code
