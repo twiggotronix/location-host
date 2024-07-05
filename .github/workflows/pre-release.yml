@@ -40,13 +40,14 @@ jobs:
             - name: Build & Commit Changelog
               id: update_changelog
               run: |
+                  version=${{ github.event.inputs.version}}
                   npm install
                   npm run changelog
-                  git add CHANGELOG.md
+                  npm version $version --no-git-tag-version
+                  git add CHANGELOG.md package.json
                   git config --global user.name 'github-actions[bot]'
                   git config --global user.email 'github-actions[bot]@users.noreply.github.com'
                   git commit -am "chore(release): update changelog"
-                  version=${{ github.event.inputs.version}}
                   git tag -a "v$version" -m "Release version $version"
                   git push origin main --follow-tags
               env:
