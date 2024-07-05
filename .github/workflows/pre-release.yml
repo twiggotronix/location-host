@@ -16,11 +16,29 @@ jobs:
                 node-version: [20.x]
         steps:
             - uses: actions/checkout@v4
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v3
               with:
                   node-version: ${{ matrix.node-version }}
+
+            - name: Install conventional-changelog
+              run: npm install -g conventional-changelog-cli
+
+            - name: Generate latest changelog
+              id: generate-changelog
+              run: |
+                  latest_changelog=$(conventional-changelog -p angular -r 1)
+                  echo "$latest_changelog" > latest_changelog.txt
+
+            - name: Upload latest changelog
+              uses: actions/upload-artifact@v2
+              with:
+                  name: latest-changelog
+                  path: latest_changelog.txt
+
             - name: Build & Commit Changelog
+              id: update_changelog
               run: |
                   npm install
                   npm run changelog
@@ -40,14 +58,17 @@ jobs:
                 node-version: [20.x]
         steps:
             - uses: actions/checkout@v4
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v3
               with:
                   node-version: ${{ matrix.node-version }}
+
             - name: Build
               run: |
                   npm install
                   npm run build
+
             - name: Archive binary files
               uses: actions/upload-artifact@v2
               with:
@@ -59,21 +80,36 @@ jobs:
         steps:
             - name: Checkout code
               uses: actions/checkout@v2
+
             - name: Download built artifact
               uses: actions/download-artifact@v2
               with:
                   name: location-host.exe
                   path: ./dist/
+
+            - name: Download latest changelog
+              uses: actions/download-artifact@v2
+              with:
+                  name: latest-changelog
+                  path: .
+
+            - name: Read changelog content
+              id: read-changelog
+              run: |
+                  changelog_content=$(cat latest_changelog.txt)
+                  echo "changelog_content<<EOF" >> $GITHUB_ENV
+                  echo "$changelog_content" >> $GITHUB_ENV
+                  echo "EOF" >> $GITHUB_ENV
+
             - name: Create Release
               id: create_release
               uses: actions/create-release@v1
               env:
                   GITHUB_TOKEN: ${{ secrets.TOKEN }}
               with:
-                  tag_name: ${{ github.event.inputs.version}} # Use the tag name as the release tag
-                  release_name: Release ${{ github.event.inputs.version}} # Use the tag name as the release name
-                  body: |
-                      Describe your release here.
+                  tag_name: ${{ github.event.inputs.version}}
+                  release_name: Release ${{ github.event.inputs.version}}
+                  body: ${{ env.changelog_content }}
 
             - name: Upload Release Asset
               id: upload-release-asset
