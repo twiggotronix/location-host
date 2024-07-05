@@ -6,7 +6,12 @@ on:
             version:
                 description: 'Version to release'
                 required: true
-                default: '0.1.0'
+                default: 'Patch'
+                type: choice
+                options:
+                    - major
+                    - minor
+                    - patch
 
 jobs:
     pre-release:
@@ -40,10 +45,9 @@ jobs:
             - name: Build & Commit Changelog
               id: update_changelog
               run: |
-                  version=${{ github.event.inputs.version}}
                   npm install
                   npm run changelog
-                  npm version $version --no-git-tag-version
+                  npm version ${{ github.event.inputs.version}} --no-git-tag-version
                   git add CHANGELOG.md package.json
                   git config --global user.name 'github-actions[bot]'
                   git config --global user.email 'github-actions[bot]@users.noreply.github.com'
@@ -53,9 +57,10 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.TOKEN }}
     build:
         runs-on: ubuntu-latest
+        needs: [pre-release]
         strategy:
             matrix:
-                node-version: [20.x]
+                node-version: [21.x]
         steps:
             - uses: actions/checkout@v4
 
@@ -94,11 +99,17 @@ jobs:
                   path: .
 
             - name: Read changelog content
-              id: read-changelog
               run: |
                   changelog_content=$(cat latest_changelog.txt)
                   echo "changelog_content<<EOF" >> $GITHUB_ENV
                   echo "$changelog_content" >> $GITHUB_ENV
+                  echo "EOF" >> $GITHUB_ENV
+
+            - name: Read changelog content
+              run: |
+                  app_version=$(jq -r '.version' package.json)
+                  echo "app_version<<EOF" >> $GITHUB_ENV
+                  echo "$app_version" >> $GITHUB_ENV
                   echo "EOF" >> $GITHUB_ENV
 
             - name: Create Release
@@ -107,8 +118,8 @@ jobs:
               env:
                   GITHUB_TOKEN: ${{ secrets.TOKEN }}
               with:
-                  tag_name: v${{ github.event.inputs.version}}
-                  release_name: Release ${{ github.event.inputs.version}}
+                  tag_name: v${{ env.app_version }}
+                  release_name: Release ${{ env.app_version}}
                   body: ${{ env.changelog_content }}
 
             - name: Upload Release Asset
