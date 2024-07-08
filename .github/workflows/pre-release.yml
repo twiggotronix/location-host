@@ -108,7 +108,7 @@ jobs:
                   echo "$changelog_content" >> $GITHUB_ENV
                   echo "EOF" >> $GITHUB_ENV
 
-            - name: Create Release
+            - name: Read App version
               run: |
                   app_version=$(jq -r '.version' package.json)
                   echo "app_version<<EOF" >> $GITHUB_ENV
